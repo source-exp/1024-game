@@ -114,3 +114,11 @@ class Game:
                 [lines[col][size - 1 - row] for col in range(size)]
                 for row in range(size)
             ]
+    def can_move(self):
+        for row in self._grid:
+            if 0 in row:
+                return True
+        return False
+
+    def is_game_over(self):
+        return not self.can_move()
