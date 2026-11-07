@@ -11,6 +11,7 @@ class Game:
         self.target = target
         self._grid = []
         self._score = 0
+        self._best = 0
         self.reset()
 
     @property
@@ -20,6 +21,10 @@ class Game:
     @property
     def score(self):
         return self._score
+
+    @property
+    def best(self):
+        return self._best
 
     def reset(self):
         self._grid = [[0] * self.size for _ in range(self.size)]
@@ -48,6 +53,7 @@ class Game:
 
         lines = self._read_lines(direction)
         new_lines = []
+        gained = 0
         moved = False
         for line in lines:
             tiles = [value for value in line if value]
@@ -55,7 +61,9 @@ class Game:
             index = 0
             while index < len(tiles):
                 if index + 1 < len(tiles) and tiles[index] == tiles[index + 1]:
-                    merged.append(tiles[index] * 2)
+                    value = tiles[index] * 2
+                    merged.append(value)
+                    gained += value * 2
                     index += 2
                 else:
                     merged.append(tiles[index])
@@ -68,6 +76,8 @@ class Game:
             return False
 
         self._write_lines(new_lines, direction)
+        self._score += gained
+        self._best = max(self._best, self._score)
         self.spawn_tile()
         return True
 
