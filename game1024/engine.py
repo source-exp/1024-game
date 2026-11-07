@@ -53,11 +53,14 @@ class Game:
         for line in lines:
             tiles = [value for value in line if value]
             merged = []
-            for value in tiles:
-                if merged and merged[-1] == value:
-                    merged[-1] *= 2
+            index = 0
+            while index < len(tiles):
+                if index + 1 < len(tiles) and tiles[index] == tiles[index + 1]:
+                    merged.append(tiles[index] * 2)
+                    index += 2
                 else:
-                    merged.append(value)
+                    merged.append(tiles[index])
+                    index += 1
             merged += [0] * (self.size - len(merged))
             moved = moved or merged != line
             new_lines.append(merged)
