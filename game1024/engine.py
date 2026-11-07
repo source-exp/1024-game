@@ -38,3 +38,35 @@ class Game:
         value = 4 if random.random() < 0.1 else 2
         self._grid[row][col] = value
         return value
+
+
+    def move(self, direction):
+        if direction not in ("left", "right"):
+            raise ValueError(f"unknown direction: {direction}")
+
+        lines = [row[:] for row in self._grid]
+        if direction == "right":
+            lines = [row[::-1] for row in lines]
+
+        new_lines = []
+        moved = False
+        for line in lines:
+            tiles = [value for value in line if value]
+            merged = []
+            for value in tiles:
+                if merged and merged[-1] == value:
+                    merged[-1] *= 2
+                else:
+                    merged.append(value)
+            merged += [0] * (self.size - len(merged))
+            moved = moved or merged != line
+            new_lines.append(merged)
+
+        if not moved:
+            return False
+
+        if direction == "right":
+            new_lines = [line[::-1] for line in new_lines]
+        self._grid = new_lines
+        self.spawn_tile()
+        return True
