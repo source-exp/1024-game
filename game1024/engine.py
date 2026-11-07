@@ -63,7 +63,7 @@ class Game:
                 if index + 1 < len(tiles) and tiles[index] == tiles[index + 1]:
                     value = tiles[index] * 2
                     merged.append(value)
-                    gained += value * 2
+                    gained += value
                     index += 2
                 else:
                     merged.append(tiles[index])
