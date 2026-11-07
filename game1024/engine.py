@@ -118,7 +118,12 @@ class Game:
         for row in self._grid:
             if 0 in row:
                 return True
-        return False
 
-    def is_game_over(self):
-        return not self.can_move()
+        for row in range(self.size):
+            for col in range(self.size):
+                value = self._grid[row][col]
+                if col + 1 < self.size and self._grid[row][col + 1] == value:
+                    return True
+                if row + 1 < self.size and self._grid[row + 1][col] == value:
+                    return True
+        return False
