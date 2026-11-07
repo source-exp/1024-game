@@ -72,32 +72,35 @@ class Game:
         return True
 
     def _read_lines(self, direction):
+        size = self.size
         if direction == "left":
             return [row[:] for row in self._grid]
         if direction == "right":
             return [row[::-1] for row in self._grid]
         if direction == "up":
             return [
-                [self._grid[row][col] for row in range(self.size - 1, -1, -1)]
-                for col in range(self.size)
+                [self._grid[row][col] for row in range(size)]
+                for col in range(size)
             ]
+        # down: read each column from the bottom upwards
         return [
-            [self._grid[row][col] for row in range(self.size)]
-            for col in range(self.size)
+            [self._grid[row][col] for row in range(size - 1, -1, -1)]
+            for col in range(size)
         ]
 
     def _write_lines(self, lines, direction):
+        size = self.size
         if direction == "left":
             self._grid = [line[:] for line in lines]
         elif direction == "right":
             self._grid = [line[::-1] for line in lines]
         elif direction == "up":
             self._grid = [
-                [lines[col][self.size - 1 - row] for col in range(self.size)]
-                for row in range(self.size)
+                [lines[col][row] for col in range(size)]
+                for row in range(size)
             ]
-        else:
+        else:  # down
             self._grid = [
-                [lines[col][row] for col in range(self.size)]
-                for row in range(self.size)
+                [lines[col][size - 1 - row] for col in range(size)]
+                for row in range(size)
             ]
