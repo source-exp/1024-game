@@ -4,6 +4,8 @@ import random
 
 
 class Game:
+    DIRECTIONS = ("left", "right", "up", "down")
+
     def __init__(self, size=4, target=1024, seed=None):
         self.size = size
         self.target = target
@@ -41,13 +43,10 @@ class Game:
 
 
     def move(self, direction):
-        if direction not in ("left", "right"):
+        if direction not in self.DIRECTIONS:
             raise ValueError(f"unknown direction: {direction}")
 
-        lines = [row[:] for row in self._grid]
-        if direction == "right":
-            lines = [row[::-1] for row in lines]
-
+        lines = self._read_lines(direction)
         new_lines = []
         moved = False
         for line in lines:
@@ -68,8 +67,37 @@ class Game:
         if not moved:
             return False
 
-        if direction == "right":
-            new_lines = [line[::-1] for line in new_lines]
-        self._grid = new_lines
+        self._write_lines(new_lines, direction)
         self.spawn_tile()
         return True
+
+    def _read_lines(self, direction):
+        if direction == "left":
+            return [row[:] for row in self._grid]
+        if direction == "right":
+            return [row[::-1] for row in self._grid]
+        if direction == "up":
+            return [
+                [self._grid[row][col] for row in range(self.size - 1, -1, -1)]
+                for col in range(self.size)
+            ]
+        return [
+            [self._grid[row][col] for row in range(self.size)]
+            for col in range(self.size)
+        ]
+
+    def _write_lines(self, lines, direction):
+        if direction == "left":
+            self._grid = [line[:] for line in lines]
+        elif direction == "right":
+            self._grid = [line[::-1] for line in lines]
+        elif direction == "up":
+            self._grid = [
+                [lines[col][self.size - 1 - row] for col in range(self.size)]
+                for row in range(self.size)
+            ]
+        else:
+            self._grid = [
+                [lines[col][row] for col in range(self.size)]
+                for row in range(self.size)
+            ]
