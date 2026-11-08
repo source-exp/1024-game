@@ -12,6 +12,7 @@ class Game:
         self._grid = []
         self._score = 0
         self._best = 0
+        self._won = False
         self.reset()
 
     @property
@@ -78,6 +79,10 @@ class Game:
         self._write_lines(new_lines, direction)
         self._score += gained
         self._best = max(self._best, self._score)
+
+        if any(value >= self.target for row in self._grid for value in row):
+            self._won = True
+
         self.spawn_tile()
         return True
 
@@ -128,8 +133,6 @@ class Game:
                     return True
         return False
     def has_won(self):
-        for row in self._grid:
-            for value in row:
-                if value == self.target:
-                    return True
-        return False
+        return self._won or any(
+            value >= self.target for row in self._grid for value in row
+        )
