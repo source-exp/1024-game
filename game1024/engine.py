@@ -11,6 +11,7 @@ class Game:
     def __init__(self, size=4, target=1024, seed=None):
         self.size = size
         self.target = target
+        self._rng = random.Random(seed)
         self._grid = []
         self._score = 0
         self._best = 0
@@ -45,8 +46,8 @@ class Game:
         ]
         if not empty:
             return 0
-        row, col = random.choice(empty)
-        value = 4 if random.random() < 0.1 else 2
+        row, col = self._rng.choice(empty)
+        value = 4 if self._rng.random() < 0.1 else 2
         self._grid[row][col] = value
         return value
 
