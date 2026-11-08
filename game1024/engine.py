@@ -13,6 +13,7 @@ class Game:
         self._score = 0
         self._best = 0
         self._won = False
+        self._history = []
         self.reset()
 
     @property
@@ -51,6 +52,8 @@ class Game:
     def move(self, direction):
         if direction not in self.DIRECTIONS:
             raise ValueError(f"unknown direction: {direction}")
+
+        self._history.append(self._snapshot())
 
         lines = self._read_lines(direction)
         new_lines = []
@@ -136,3 +139,14 @@ class Game:
         return self._won or any(
             value >= self.target for row in self._grid for value in row
         )
+    def undo(self):
+        if not self._history:
+            return False
+        grid, score, won = self._history.pop()
+        self._grid = grid
+        self._score = score
+        self._won = won
+        return True
+
+    def _snapshot(self):
+        return ([row[:] for row in self._grid], self._score, self._won)
