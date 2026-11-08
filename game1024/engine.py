@@ -53,8 +53,6 @@ class Game:
         if direction not in self.DIRECTIONS:
             raise ValueError(f"unknown direction: {direction}")
 
-        self._history.append(self._snapshot())
-
         lines = self._read_lines(direction)
         new_lines = []
         gained = 0
@@ -79,6 +77,7 @@ class Game:
         if not moved:
             return False
 
+        self._history.append(self._snapshot())
         self._write_lines(new_lines, direction)
         self._score += gained
         self._best = max(self._best, self._score)
