@@ -1,10 +1,12 @@
 """Game logic for 1024."""
 
 import random
+from collections import deque
 
 
 class Game:
     DIRECTIONS = ("left", "right", "up", "down")
+    MAX_UNDO = 20
 
     def __init__(self, size=4, target=1024, seed=None):
         self.size = size
@@ -13,7 +15,7 @@ class Game:
         self._score = 0
         self._best = 0
         self._won = False
-        self._history = []
+        self._history = deque(maxlen=self.MAX_UNDO)
         self.reset()
 
     @property
