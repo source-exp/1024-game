@@ -61,21 +61,10 @@ class Game:
         gained = 0
         moved = False
         for line in lines:
-            tiles = [value for value in line if value]
-            merged = []
-            index = 0
-            while index < len(tiles):
-                if index + 1 < len(tiles) and tiles[index] == tiles[index + 1]:
-                    value = tiles[index] * 2
-                    merged.append(value)
-                    gained += value
-                    index += 2
-                else:
-                    merged.append(tiles[index])
-                    index += 1
-            merged += [0] * (self.size - len(merged))
-            moved = moved or merged != line
-            new_lines.append(merged)
+            new_line, line_score = self._slide_line(line)
+            gained += line_score
+            moved = moved or new_line != line
+            new_lines.append(new_line)
 
         if not moved:
             return False
@@ -152,3 +141,22 @@ class Game:
 
     def _snapshot(self):
         return ([row[:] for row in self._grid], self._score, self._won)
+
+    def _slide_line(self, line):
+        tiles = [value for value in line if value != 0]
+        merged = []
+        gained = 0
+        index = 0
+
+        while index < len(tiles):
+            if index + 1 < len(tiles) and tiles[index] == tiles[index + 1]:
+                value = tiles[index] * 2
+                merged.append(value)
+                gained += value
+                index += 2
+            else:
+                merged.append(tiles[index])
+                index += 1
+
+        merged.extend([0] * (self.size - len(merged)))
+        return merged, gained
