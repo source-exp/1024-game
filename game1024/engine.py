@@ -127,3 +127,9 @@ class Game:
                 if row + 1 < self.size and self._grid[row + 1][col] == value:
                     return True
         return False
+    def has_won(self):
+        for row in self._grid:
+            for value in row:
+                if value == self.target:
+                    return True
+        return False
