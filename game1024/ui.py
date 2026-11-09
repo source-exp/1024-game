@@ -82,7 +82,7 @@ def render(game):
     ]
     for row in game.grid:
         lines.append(" ".join(_tile(value) for value in row))
-    if game.score >= game.target:
+    if game.has_won():
         lines.append("")
         lines.append(
             f"You reached {game.target}! Keep going for a higher score."
