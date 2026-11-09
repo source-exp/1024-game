@@ -177,3 +177,14 @@ def run(game=None, stdin=None, stdout=None):
         _run_interactive(game, stdin, stdout)
     else:
         _run_line_mode(game, stdin, stdout)
+
+
+def main():
+    try:
+        run()
+    except KeyboardInterrupt:
+        sys.stdout.write("\n")
+        sys.stdout.flush()
+    except BrokenPipeError:
+        pass
+    return 0

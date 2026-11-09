@@ -1,6 +1,6 @@
 """Entry point for ``python3 -m game1024``."""
 
-from .ui import run
+from .ui import main
 
 if __name__ == "__main__":
-    run()
+    raise SystemExit(main())
