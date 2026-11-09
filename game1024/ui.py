@@ -5,6 +5,8 @@ from .engine import Game
 TILE_WIDTH = 5
 
 RESET = "\033[0m"
+BOLD = "\033[1m"
+YELLOW = "\033[33m"
 
 STYLES = {
     0: 236,
@@ -29,7 +31,10 @@ def _tile(value):
 
 
 def render(game):
-    lines = []
+    lines = [
+        f"\033[1m\033[33m{game.target}   SCORE {game.score}   BEST {game.best}{RESET}",
+        "",
+    ]
     for row in game.grid:
         lines.append(" ".join(_tile(value) for value in row))
     return "\n".join(lines)
