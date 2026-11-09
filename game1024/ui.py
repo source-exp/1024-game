@@ -2,6 +2,7 @@
 
 import os
 import select
+import shutil
 import sys
 
 from .engine import Game
@@ -87,9 +88,17 @@ def render(game):
 def _run_interactive(game, stdin, stdout):
     fd = stdin.fileno()
     tty.setcbreak(fd)
+    stdout.write("\033[?25l")
+    stdout.flush()
 
     while True:
-        stdout.write(render(game) + "\n")
+        terminal = shutil.get_terminal_size((80, 24))
+        frame = render(game)
+        top_margin = max((terminal.lines - frame.count("\n") - 1) // 2 - 1, 0)
+
+        stdout.write("\033[2J\033[H")
+        stdout.write("\n" * top_margin)
+        stdout.write(frame + "\n")
         stdout.flush()
 
         key = _read_key(fd)
@@ -102,7 +111,6 @@ def _run_interactive(game, stdin, stdout):
             game.undo()
         elif key in game.DIRECTIONS:
             game.move(key)
-
 
 def run(game=None, stdin=None, stdout=None):
     game = game if game is not None else Game()
