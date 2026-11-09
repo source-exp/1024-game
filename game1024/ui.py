@@ -1,6 +1,7 @@
 """Terminal user interface for 1024."""
 
 import os
+import select
 import sys
 
 from .engine import Game
@@ -42,10 +43,28 @@ _ESCAPE_KEYS = {
 
 
 def _read_key(fd):
-    char = os.read(fd, 1).decode("utf-8", "ignore")
+    """Read a single key press from a raw/cbreak terminal."""
+    try:
+        data = os.read(fd, 1)
+    except OSError:
+        return "quit"
+
+    if not data:
+        return "quit"
+
+    char = data.decode("utf-8", "ignore")
+
     if char == "\x1b":
-        sequence = char + os.read(fd, 1).decode("utf-8", "ignore")
+        # Arrow keys arrive as a short escape sequence. Wait briefly for the
+        # rest so a lone Escape does not block forever.
+        sequence = char
+        while len(sequence) < 3 and select.select([fd], [], [], 0.02)[0]:
+            sequence += os.read(fd, 1).decode("utf-8", "ignore")
         return _ESCAPE_KEYS.get(sequence, "escape")
+
+    if char == "\x03":  # Ctrl-C when ISIG is disabled
+        return "quit"
+
     return char.lower()
 
 def _tile(value):
