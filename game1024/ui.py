@@ -118,8 +118,56 @@ def _run_interactive(game, stdin, stdout):
         stdout.write("\033[?25h" + RESET + "\n")
         stdout.flush()
 
+def _is_tty(stream):
+    try:
+        return bool(stream.isatty())
+    except (AttributeError, ValueError):
+        return False
+
+
+def _run_line_mode(game, stdin, stdout):
+    color = _is_tty(stdout)
+    stdout.write(render(game) + "\n")
+    stdout.flush()
+
+    for raw_line in stdin:
+        command = raw_line.strip().lower()
+        if not command:
+            continue
+
+        if command in ("q", "quit", "exit"):
+            return
+
+        if command in ("r", "restart"):
+            game.reset()
+        elif command in ("u", "undo"):
+            if not game.undo():
+                stdout.write("Nothing to undo.\n")
+                stdout.flush()
+                continue
+        elif command in ("left", "a", "right", "d", "up", "w", "down", "s"):
+            direction = {"a": "left", "d": "right", "w": "up", "s": "down"}.get(
+                command, command
+            )
+            if not game.move(direction):
+                stdout.write("That move does not change the board.\n")
+                stdout.flush()
+                continue
+        else:
+            stdout.write(f"Unknown command: {command}\n")
+            stdout.flush()
+            continue
+
+        stdout.write(render(game) + "\n")
+        stdout.flush()
+
+
 def run(game=None, stdin=None, stdout=None):
     game = game if game is not None else Game()
     stdin = stdin if stdin is not None else sys.stdin
     stdout = stdout if stdout is not None else sys.stdout
-    _run_interactive(game, stdin, stdout)
+
+    if termios is not None and _is_tty(stdin) and _is_tty(stdout):
+        _run_interactive(game, stdin, stdout)
+    else:
+        _run_line_mode(game, stdin, stdout)
