@@ -2,7 +2,7 @@
 
 from .engine import Game
 
-TILE_WIDTH = 5
+TILE_WIDTH = 9
 
 RESET = "\033[0m"
 BOLD = "\033[1m"
