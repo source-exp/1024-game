@@ -87,30 +87,36 @@ def render(game):
 
 def _run_interactive(game, stdin, stdout):
     fd = stdin.fileno()
+    saved_attributes = termios.tcgetattr(fd)
     tty.setcbreak(fd)
     stdout.write("\033[?25l")
     stdout.flush()
 
-    while True:
-        terminal = shutil.get_terminal_size((80, 24))
-        frame = render(game)
-        top_margin = max((terminal.lines - frame.count("\n") - 1) // 2 - 1, 0)
+    try:
+        while True:
+            terminal = shutil.get_terminal_size((80, 24))
+            frame = render(game)
+            top_margin = max((terminal.lines - frame.count("\n") - 1) // 2 - 1, 0)
 
-        stdout.write("\033[2J\033[H")
-        stdout.write("\n" * top_margin)
-        stdout.write(frame + "\n")
+            stdout.write("\033[2J\033[H")
+            stdout.write("\n" * top_margin)
+            stdout.write(frame + "\n")
+            stdout.flush()
+
+            key = _read_key(fd)
+
+            if key in ("q", "quit"):
+                return
+            if key == "r":
+                game.reset()
+            elif key == "u":
+                game.undo()
+            elif key in game.DIRECTIONS:
+                game.move(key)
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, saved_attributes)
+        stdout.write("\033[?25h" + RESET + "\n")
         stdout.flush()
-
-        key = _read_key(fd)
-
-        if key in ("q", "quit"):
-            return
-        if key == "r":
-            game.reset()
-        elif key == "u":
-            game.undo()
-        elif key in game.DIRECTIONS:
-            game.move(key)
 
 def run(game=None, stdin=None, stdout=None):
     game = game if game is not None else Game()
