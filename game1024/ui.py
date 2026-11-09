@@ -1,6 +1,16 @@
 """Terminal user interface for 1024."""
 
+import os
+import sys
+
 from .engine import Game
+
+try:
+    import termios
+    import tty
+except ImportError:  # pragma: no cover
+    termios = None
+    tty = None
 
 TILE_WIDTH = 9
 
@@ -22,6 +32,21 @@ STYLES = {
     1024: 228,
 }
 
+
+_ESCAPE_KEYS = {
+    "\x1b[A": "up",
+    "\x1b[B": "down",
+    "\x1b[C": "right",
+    "\x1b[D": "left",
+}
+
+
+def _read_key(fd):
+    char = os.read(fd, 1).decode("utf-8", "ignore")
+    if char == "\x1b":
+        sequence = char + os.read(fd, 1).decode("utf-8", "ignore")
+        return _ESCAPE_KEYS.get(sequence, "escape")
+    return char.lower()
 
 def _tile(value):
     if not value:
