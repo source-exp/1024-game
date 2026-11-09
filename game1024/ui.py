@@ -4,6 +4,8 @@ from .engine import Game
 
 TILE_WIDTH = 5
 
+RESET = "\033[0m"
+
 STYLES = {
     0: 236,
     2: 252,
@@ -23,7 +25,7 @@ def _tile(value):
     if not value:
         return " " * TILE_WIDTH
     background = STYLES.get(value, 201)
-    return f"\033[48;5;{background}m{value:^{TILE_WIDTH}}"
+    return f"\033[48;5;{background}m{value:^{TILE_WIDTH}}{RESET}"
 
 
 def render(game):
