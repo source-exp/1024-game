@@ -84,6 +84,28 @@ def render(game):
     return "\n".join(lines)
 
 
-def run(game=None):
+def _run_interactive(game, stdin, stdout):
+    fd = stdin.fileno()
+    tty.setcbreak(fd)
+
+    while True:
+        stdout.write(render(game) + "\n")
+        stdout.flush()
+
+        key = _read_key(fd)
+
+        if key in ("q", "quit"):
+            return
+        if key == "r":
+            game.reset()
+        elif key == "u":
+            game.undo()
+        elif key in game.DIRECTIONS:
+            game.move(key)
+
+
+def run(game=None, stdin=None, stdout=None):
     game = game if game is not None else Game()
-    print(render(game))
+    stdin = stdin if stdin is not None else sys.stdin
+    stdout = stdout if stdout is not None else sys.stdout
+    _run_interactive(game, stdin, stdout)
