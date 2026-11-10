@@ -140,7 +140,7 @@ class MoveTests(unittest.TestCase):
         self.assert_move(
             [[4, 4, 4, 0]] + EMPTY_BOARD[1:],
             "left",
-            [[4, 8, 0, 0]] + EMPTY_BOARD[1:],
+            [[8, 4, 0, 0]] + EMPTY_BOARD[1:],
             8,
         )
 
