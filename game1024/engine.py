@@ -19,6 +19,7 @@ class _Snapshot:
     grid: List[List[int]]
     score: int
     won: bool
+    rng_state: object
 
 
 class Game:
@@ -223,6 +224,7 @@ class Game:
         self._grid = snapshot.grid
         self._score = snapshot.score
         self._won = snapshot.won
+        self._rng.setstate(snapshot.rng_state)
         return True
 
     # ------------------------------------------------------------------
@@ -233,6 +235,7 @@ class Game:
             grid=[row[:] for row in self._grid],
             score=self._score,
             won=self._won,
+            rng_state=self._rng.getstate(),
         )
 
     def _read_lines(self, direction: str) -> List[List[int]]:
