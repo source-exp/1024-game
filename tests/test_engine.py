@@ -259,5 +259,98 @@ class MoveTests(unittest.TestCase):
         self.assertEqual(first.best, second.best)
 
 
+class UndoTests(unittest.TestCase):
+    def test_undo_restores_grid_and_score(self) -> None:
+        game = Game(seed=7)
+        game._grid = [[2, 0, 0, 0]] + EMPTY_BOARD[1:]
+        game._score = 0
+        game._won = False
+        game._history.clear()
+        before = game.grid
+
+        self.assertTrue(game.move("right"))
+        self.assertNotEqual(game.grid, before)
+
+        self.assertTrue(game.undo())
+        self.assertEqual(game.grid, before)
+        self.assertEqual(game.score, 0)
+        self.assertFalse(game.has_won())
+
+    def test_undo_replays_the_same_random_tile(self) -> None:
+        game = Game(seed=11)
+        game._grid = [[2, 0, 0, 0]] + EMPTY_BOARD[1:]
+        game._score = 0
+        game._won = False
+        game._history.clear()
+
+        self.assertTrue(game.move("right"))
+        after_first_move = game.grid
+
+        self.assertTrue(game.undo())
+        self.assertTrue(game.move("right"))
+        self.assertEqual(game.grid, after_first_move)
+
+    def test_undo_with_no_history_returns_false(self) -> None:
+        self.assertFalse(Game(seed=1).undo())
+
+    def test_undo_is_limited_to_twenty_moves(self) -> None:
+        game = make_game([[2, 0, 0, 0]] + EMPTY_BOARD[1:])
+
+        for index in range(25):
+            direction = "right" if index % 2 == 0 else "left"
+            self.assertTrue(game.move(direction))
+
+        for _ in range(20):
+            self.assertTrue(game.undo())
+        self.assertFalse(game.undo())
+
+
+class ResetAndSpawnTests(unittest.TestCase):
+    def test_reset_starts_a_new_round(self) -> None:
+        game = Game(seed=5)
+        game._grid = [[2, 2, 0, 0]] + EMPTY_BOARD[1:]
+        game._score = 0
+        game._won = False
+        game._history.clear()
+        self.assertTrue(game.move("left"))
+
+        game.reset()
+
+        self.assertEqual(tile_count(game), 2)
+        self.assertEqual(game.score, 0)
+        self.assertFalse(game.has_won())
+        self.assertFalse(game.is_game_over())
+        self.assertFalse(game.undo())
+
+    def test_best_score_survives_reset(self) -> None:
+        game = Game(seed=5)
+        game._grid = [[2, 2, 0, 0]] + EMPTY_BOARD[1:]
+        game._score = 0
+        game._won = False
+        game._history.clear()
+        game.move("left")
+
+        best = game.best
+        self.assertGreaterEqual(best, 4)
+
+        game.reset()
+        self.assertEqual(game.best, best)
+
+    def test_spawn_tile_returns_two_or_four(self) -> None:
+        game = Game(seed=3)
+        game._grid = [row[:] for row in EMPTY_BOARD]
+
+        value = game.spawn_tile()
+
+        self.assertIn(value, (2, 4))
+        self.assertEqual(tile_count(game), 1)
+
+    def test_spawn_tile_returns_zero_when_board_is_full(self) -> None:
+        game = Game(seed=3)
+        game._grid = [row[:] for row in CHECKERBOARD]
+
+        self.assertEqual(game.spawn_tile(), 0)
+
+
 if __name__ == "__main__":
     unittest.main()
